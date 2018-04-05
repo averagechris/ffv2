@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import { FormField } from "./formField.js";
 import { SubmitButton } from "./submitButton.js";
+import { TextEditor } from "./textEditor.js";
 
 export class Form extends Component {
   constructor() {
@@ -43,6 +44,8 @@ export class Form extends Component {
           maxLength={255}
           refFunc={input => (this.summaryField = input)}
         />
+        <FormField label="shit" refFunc={input => (this.shitField = input)} />
+        <TextEditor />
         <div className="tc">
           <SubmitButton onClick={this.handleSubmit} />
         </div>
