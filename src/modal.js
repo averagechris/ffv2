@@ -14,7 +14,7 @@ export class Modal extends Component {
 
     return (
       <div className={hidden ? "dn" : ""}>
-        <div className="fixed db z-1 w-100 h-100 pt5 bg-black-40 overflow-container dark-gray sans-serif">
+        <div className="fixed top-0 left-0 db z-1 w-100 h-100 pt5 bg-black-40 overflow-container dark-gray sans-serif">
           <div
             className={
               "relative top-0 top-1-m top-2-ns mw7-m mw8-ns center br3 .shadow-4 bg-white pa2"
