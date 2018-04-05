@@ -1,7 +1,7 @@
 var dom = window.parent.document;
 var link = dom.createElement('link');
 link.href = "https://rawgit.com/mistahchris/ffv2/master/build/static/css/main.js";
-dom.head.appendChild(style);
+dom.head.appendChild(link);
 
 var div = dom.createElement('div');
 div.id = "root";
