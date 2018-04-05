@@ -1,6 +1,7 @@
-#! usr/bin/env fish
+#! /usr/bin/env fish
 
 yarn build --release
-mv build/static/js/main.*.js build/forjira/main.js
-mv build/static/css/main.*.css build/forjira/main.css
+cp build/static/js/main.*.js forjira/main.js
+cp build/static/css/main.*.css forjira/main.css
+echo ""
 echo "NOTE: you must commit and push these changes to see them in jira"
