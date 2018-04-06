@@ -3,17 +3,35 @@ import React, { Component } from "react";
 import { FormField } from "./formField.js";
 import { SubmitButton } from "./submitButton.js";
 import { TextEditor } from "./textEditor.js";
+import { CategoryChooser } from "./CategoryChooser.js";
+import { ReferencesField } from "./referencesField.js";
 
 export class Form extends Component {
   constructor() {
     super();
+    this.state = {};
+
     this.handleSubmit = this.handleSubmit.bind(this);
     this.clearForm = this.clearForm.bind(this);
+    this.collectTextEditorContents = this.collectTextEditorContents.bind(this);
     this.fieldRefs = this.fieldRefs.bind(this);
+    this.handleCategorySelection = this.handleCategorySelection.bind(this);
+    this.validateForm = this.validateForm.bind(this);
+    this.validateReferences = this.validateReferences.bind(this);
+  }
+
+  collectTextEditorContents(markdown) {
+    this.setState((prevState, currentProps) => ({ ...prevState, markdown }));
+  }
+
+  handleCategorySelection(o) {
+    this.setState(prevState => ({ ...prevState, category: o.newValue }));
   }
 
   handleSubmit(event) {
     event.preventDefault();
+    this.validateForm();
+    return;
 
     let formData = this.fieldRefs().reduce(
       (formData, field) => ({
@@ -22,8 +40,27 @@ export class Form extends Component {
       }),
       {}
     );
+    let markdown = this.state.markdown ? this.state.markdown : "";
+    this.props.onSubmit({ ...formData, ...this.state, markdown });
+  }
 
-    this.props.onSubmit(formData);
+  validateForm() {
+    let fields = this.fieldRefs();
+    this.validateReferences(fields);
+  }
+
+  validateReferences(allFields) {
+    let referenceInput = allFields.filter(f => f.name === "References").pop();
+    let emailPattern = new RegExp(".*@.*\\.(\\.?\\w{2,}){1,3}");
+    let eventbriteIDsPattern = new RegExp("d{5,}");
+    let rawValue = referenceInput.value;
+    let emails = emailPattern.exec(rawValue) || [];
+    let eventbriteIds = eventbriteIDsPattern.exec(rawValue) || [];
+
+    let matches = emails + eventbriteIds;
+
+    console.log(emails);
+    /* referenceInput.value */
   }
 
   fieldRefs() {
@@ -44,8 +81,15 @@ export class Form extends Component {
           maxLength={255}
           refFunc={input => (this.summaryField = input)}
         />
-        <FormField label="shit" refFunc={input => (this.shitField = input)} />
-        <TextEditor />
+        <CategoryChooser
+          defaultSelectMessage="What's the impact?"
+          onChange={this.handleCategorySelection}
+        />
+        <FormField
+          label="References"
+          refFunc={input => (this.referencesField = input)}
+        />
+        <TextEditor onChange={this.collectTextEditorContents} />
         <div className="tc">
           <SubmitButton onClick={this.handleSubmit} />
         </div>
