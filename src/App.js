@@ -1,27 +1,16 @@
+import "tachyons/css/tachyons.min.css";
 import React, { Component } from "react";
-import Tachyons from "tachyons/css/tachyons.min.css";
+import { Modal } from "basic-react-component-library";
 
-import "./App.css";
-
-import { Modal } from "./modal.js";
+import JiraForm from "./newJiraForm.js";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { modalHidden: true };
+    this.state = { modalHidden: false }; //TODO: in production change this to true
 
-    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.toggleModalHide = this.toggleModalHide.bind(this);
-  }
-
-  handleKeyDown(e) {
-    if (e.key == "Escape") {
-      this.closeModal();
-    }
-  }
-
-  handleFormSubmit(formData) {
-    console.log(formData);
+    this.renderToolbar = this.renderToolbar.bind(this);
   }
 
   closeModal() {
@@ -32,22 +21,30 @@ class App extends Component {
     this.setState(prevState => ({ modalHidden: !prevState.modalHidden }));
   }
 
+  renderToolbar() {
+    return (
+      <a href="#" onClick={this.toggleModalHide}>
+        Click me
+      </a>
+    );
+  }
+
   render() {
     let { modalHidden } = this.state;
 
     return (
-      <div className="" onKeyDown={this.handleKeyDown}>
+      <div className="">
         {modalHidden ? (
-          <a href="#" onClick={this.toggleModalHide}>
-            Click me
-          </a>
+          this.renderToolbar()
         ) : (
           <Modal
-            hidden={this.state.modalHidden}
-            title="Fast File"
-            onClose={this.toggleModalHide}
-            onSubmit={this.handleFormSubmit}
-          />
+            handleClose={this.toggleModalHide}
+            containerClasses={["tc center"]}
+          >
+            <h1 className="tracked b ttu f2 lh-title tc">Fast File</h1>
+            <hr />
+            <JiraForm />
+          </Modal>
         )}
       </div>
     );
