@@ -7,6 +7,8 @@ import {
   TagItem
 } from "basic-react-component-library";
 
+import CategorySelect from "./CategorySelect.js";
+
 const ReferenceItem = ({ value, onClick, toRemove, ...props }) => (
   <TagItem
     additionalContainerClasses={["ma1", "blue"]}
@@ -29,16 +31,20 @@ class JiraForm extends Component {
   constructor() {
     super();
     this.state = {
+      category: "",
       references: {
         emails: new Set(),
         eventIds: new Set(),
         orderIds: new Set()
       }
     };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.addReferenceItems = this.addReferenceItems.bind(this);
-    this.removeReferenceItem = this.removeReferenceItem.bind(this);
-    this.transformationsOnChange = this.transformationsOnChange.bind(this);
+    [
+      "handleSubmit",
+      "addReferenceItems",
+      "removeReferenceItem",
+      "transformationsOnChange",
+      "updateCategory"
+    ].forEach(f => (this[f] = this[f].bind(this)));
   }
   _formatReferencesToMarkupString({ emails, eventIds, orderIds }) {
     let adminUrl = "https://admin.eventbrite.com/?q=";
@@ -62,9 +68,15 @@ class JiraForm extends Component {
     let references = this._formatReferencesToMarkupString(
       this.state.references
     );
-    console.log(references);
-    let data = { ...formData, References: references };
+    let data = {
+      ...formData,
+      References: references,
+      category: this.state.category
+    };
     console.log(data);
+  }
+  updateCategory(e) {
+    this.setState(s => ({ ...s, category: e }));
   }
   addReferenceItems(value) {
     let newEmails =
@@ -105,7 +117,7 @@ class JiraForm extends Component {
     return transformationFunctions;
   }
   render() {
-    let { references } = this.state;
+    let { category, references } = this.state;
     return (
       <Form
         onSubmit={this.handleSubmit}
@@ -115,6 +127,7 @@ class JiraForm extends Component {
           name="Summary"
           placeholder="fucking title of the fucking jira ticket bruh"
         />
+        <CategorySelect value={category} onChange={this.updateCategory} />
         <FormInput
           name="References"
           placeholder="paste account emails, event or order ids"
