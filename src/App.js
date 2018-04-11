@@ -2,7 +2,7 @@ import "tachyons/css/tachyons.min.css";
 import React, { Component } from "react";
 import { Modal } from "basic-react-component-library";
 
-import JiraForm from "./newJiraForm.js";
+import JiraForm from "./jiraForm.js";
 
 class App extends Component {
   constructor(props) {
