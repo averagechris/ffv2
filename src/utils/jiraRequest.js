@@ -1,6 +1,9 @@
 const JIRA = {
   host: "jira.evbhome.com",
-  endpoints: { createIssue: "/secure/QuickCreateIssue.jspa?decorator=none" },
+  endpoints: {
+    createIssue: "/secure/QuickCreateIssue.jspa?decorator=none",
+    formTokens: "/secure/QuickCreateIssue!default.jspa?decorator=none"
+  },
   fields: {
     issueType: { bug: 1 },
     environment: { production: "10680", qa: "" },
@@ -16,10 +19,12 @@ const findLoggedInJiraUser = () =>
     .pop();
 
 const getJiraFormTokens = () => {
-  jiraPost({ endpoint: "createIssue" }).then(r => {
+  let response;
+  jiraPost({ endpoint: "formTokens" }).then(r => {
     console.log(r);
-    return r;
+    response = r;
   });
+  return response;
 };
 
 const jiraPost = ({ body, headers, endpoint }) => {
