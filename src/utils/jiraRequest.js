@@ -19,12 +19,12 @@ const findLoggedInJiraUser = () =>
     .pop();
 
 const getJiraFormTokens = () => {
-  let response;
-  jiraPost({ endpoint: "formTokens" }).then(r => {
-    console.log(r);
-    response = r;
-  });
-  return response;
+  return jiraPost({ endpoint: "formTokens" }).then(r =>
+    r.text().then(body => {
+      let { atl_token, formToken } = JSON.parse(body);
+      return { atl_token, formToken };
+    })
+  );
 };
 
 const jiraPost = ({ body, headers, endpoint }) => {
@@ -34,15 +34,12 @@ const jiraPost = ({ body, headers, endpoint }) => {
     headers: {
       Accept: "*/*",
       Connection: "keep-alive",
-      "Content-Length": body ? body.length : 0,
-      Host: JIRA.host,
-      credentials: "same-origin",
       ...headers
     },
+    credentials: "same-origin",
     mode: "same-origin",
     body: body || ""
   };
-  console.log("sending post to", url, init);
   return fetch(url, init);
 };
 
@@ -56,8 +53,7 @@ export const createJiraIssueSUP = ({
   reporter,
   summary
 }) => {
-  let userName = findLoggedInJiraUser();
-  console.log(getJiraFormTokens(userName));
+  console.log(getJiraFormTokens());
   return;
   let normalizedFormData = {
     summary,
