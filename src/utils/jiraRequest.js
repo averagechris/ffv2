@@ -39,8 +39,8 @@ const jiraPost = ({ body, headers, endpoint }) => {
       credentials: "include",
       ...headers
     },
-    // mode: "same-origin",
-    body
+    mode: "same-origin",
+    body: body || ""
   };
   console.log("sending post to", url, init);
   return fetch(url, init);
