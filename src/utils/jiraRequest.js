@@ -22,6 +22,7 @@ const getJiraFormTokens = () => {
   return jiraPost({ endpoint: "formTokens" }).then(r =>
     r.text().then(body => {
       let { atl_token, formToken } = JSON.parse(body);
+      console.log({ atl_token, formToken });
       return { atl_token, formToken };
     })
   );
