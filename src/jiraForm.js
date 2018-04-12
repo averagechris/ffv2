@@ -1,31 +1,9 @@
 import React, { Component } from "react";
-import {
-  Button,
-  CloseIcon,
-  Form,
-  FormInput,
-  TagItem
-} from "basic-react-component-library";
+import { Button, Form, FormInput } from "basic-react-component-library";
 
+import { createJiraIssueSUP } from "./utils/jiraRequest.js";
 import CategorySelect from "./CategorySelect.js";
-
-const ReferenceItem = ({ value, onClick, toRemove, ...props }) => (
-  <TagItem
-    additionalContainerClasses={["ma1", "blue"]}
-    additionalValueClasses={["dib underline-hover"]}
-    name={value}
-    value={value}
-    onClick={onClick}
-    {...props}
-  >
-    <CloseIcon
-      additionalContainerClasses={["dim"]}
-      color="gray"
-      size="small"
-      onClick={toRemove}
-    />
-  </TagItem>
-);
+import ReferenceItem from "./ReferenceItem.js";
 
 class JiraForm extends Component {
   constructor() {
@@ -43,7 +21,9 @@ class JiraForm extends Component {
       "addReferenceItems",
       "removeReferenceItem",
       "transformationsOnChange",
-      "updateCategory"
+      "updateCategory",
+      "_formatReferencesToMarkupString",
+      "_formatDescription"
     ].forEach(f => (this[f] = this[f].bind(this)));
   }
   _formatReferencesToMarkupString({ emails, eventIds, orderIds }) {
@@ -64,16 +44,26 @@ class JiraForm extends Component {
     // TODO: orderId admin url is _NOT_ the same
     return emailStr + eventIdStr + orderIdStr;
   }
+  _formatDescription(str, references) {
+    return `${str}\n----\n*REFERENCES*\n${references}\n`;
+  }
   handleSubmit(formData) {
-    let references = this._formatReferencesToMarkupString(
-      this.state.references
+    let { references, category } = this.state;
+    let description = this._formatDescription(
+      "*STR*\n1. go to some page\n2. do other stuff\n*expected*: good stuff\n*actual*: bad stuff",
+      this._formatReferencesToMarkupString(references)
     );
     let data = {
-      ...formData,
-      References: references,
-      category: this.state.category
+      summary: formData.summary,
+      description,
+      priority: category.value,
+      labels: [],
+      environment: "produciton",
+      assignee: undefined, // creatJiraIssueSUP handels finding reporter/assignee by logged in user
+      reporter: undefined,
+      components: undefined
     };
-    console.log(data);
+    createJiraIssueSUP(data);
   }
   updateCategory(e) {
     this.setState(s => ({ ...s, category: e }));
@@ -108,7 +98,7 @@ class JiraForm extends Component {
   transformationsOnChange() {
     let transformationFunctions = [
       ({ fieldName, value }) => {
-        if (fieldName === "References") {
+        if (fieldName === "references") {
           this.addReferenceItems(value);
           return "";
         }
