@@ -15,6 +15,13 @@ const findLoggedInJiraUser = () =>
     .map(node => node.content)
     .pop();
 
+const getJiraFormTokens = () => {
+  jiraPost({ endpoint: "createIssue" }).then(r => {
+    console.log(r);
+    return r;
+  });
+};
+
 const jiraPost = ({ body, headers, endpoint }) => {
   let url = `${JIRA.host}${JIRA.endpoints[endpoint]}`;
   let init = {
@@ -29,7 +36,6 @@ const jiraPost = ({ body, headers, endpoint }) => {
     mode: "same-origin",
     body
   };
-  console.log("doing post to", url, init);
   return fetch(url, init);
 };
 
@@ -43,6 +49,8 @@ export const createJiraIssueSUP = ({
   reporter,
   summary
 }) => {
+  console.log(getJiraFormTokens());
+  return;
   let normalizedFormData = {
     summary,
     description,
@@ -56,7 +64,12 @@ export const createJiraIssueSUP = ({
 
     // environment
     customfield_11140:
-      JIRA.fields.environment[environment] || JIRA.fields.environment.production
+      JIRA.fields.environment[environment] ||
+      JIRA.fields.environment.production,
+
+    // required tokens
+    atl_token: "",
+    formToken: ""
   };
   let body = Object.keys(normalizedFormData)
     .filter(param => normalizedFormData[param] !== undefined)
