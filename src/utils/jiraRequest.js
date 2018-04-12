@@ -29,7 +29,7 @@ const jiraPost = ({ body, headers, endpoint }) => {
     headers: {
       Accept: "*/*",
       Connection: "keep-alive",
-      "Content-Length": body.length,
+      "Content-Length": body ? body.length : 0,
       Host: JIRA.host,
       ...headers
     },
