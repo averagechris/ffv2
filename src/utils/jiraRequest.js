@@ -36,7 +36,7 @@ const jiraPost = ({ body, headers, endpoint }) => {
       Connection: "keep-alive",
       "Content-Length": body ? body.length : 0,
       Host: JIRA.host,
-      credentials: "include",
+      credentials: "same-origin",
       ...headers
     },
     mode: "same-origin",
