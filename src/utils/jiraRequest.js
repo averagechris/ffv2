@@ -36,10 +36,10 @@ const jiraPost = ({ body, headers, endpoint }) => {
       Connection: "keep-alive",
       "Content-Length": body ? body.length : 0,
       Host: JIRA.host,
-      credentials: "same-origin",
+      credentials: "include",
       ...headers
     },
-    mode: "same-origin",
+    // mode: "same-origin",
     body
   };
   return fetch(url, init);
