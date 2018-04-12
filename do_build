@@ -3,5 +3,13 @@
 yarn build --release
 cp build/static/js/main.*.js forjira/main.js
 cp build/static/css/main.*.css forjira/main.css
-echo ""
-echo "NOTE: you must commit and push these changes to see them in jira"
+
+if test $argv[1] = "--push"
+    echo "pusing to git"
+    git add .
+    git commit -m "push new build"
+    git push
+else
+    echo ""
+    echo "NOTE: you must commit and push these changes to see them in jira"
+end
