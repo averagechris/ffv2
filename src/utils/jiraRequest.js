@@ -36,6 +36,7 @@ const jiraPost = ({ body, headers, endpoint }) => {
       Connection: "keep-alive",
       "Content-Length": body ? body.length : 0,
       Host: JIRA.host,
+      "X-AUSERNAME": findLoggedInJiraUser(),
       ...headers
     },
     mode: "same-origin",
@@ -54,13 +55,14 @@ export const createJiraIssueSUP = ({
   reporter,
   summary
 }) => {
-  console.log(getJiraFormTokens());
+  let userName = findLoggedInJiraUser();
+  console.log(getJiraFormTokens(userName));
   return;
   let normalizedFormData = {
     summary,
     description,
     assignee: assignee ? assignee : -1, // -1 appears to be "Automatic"
-    reporter: reporter ? reporter : findLoggedInJiraUser(),
+    reporter: reporter ? reporter : userName,
     pid: JIRA.fields.project.SUP.pid,
     issuetype: JIRA.fields.issueType.bug,
     priority: JIRA.fields.priority[priority],
