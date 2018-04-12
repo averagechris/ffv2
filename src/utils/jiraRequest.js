@@ -59,7 +59,7 @@ export const createJiraIssueSUP = ({
     summary,
     description,
     assignee: assignee ? assignee : -1, // -1 appears to be "Automatic"
-    reporter: reporter ? reporter : userName,
+    reporter: reporter ? reporter : findLoggedInJiraUser(),
     pid: JIRA.fields.project.SUP.pid,
     issuetype: JIRA.fields.issueType.bug,
     priority: JIRA.fields.priority[priority],
