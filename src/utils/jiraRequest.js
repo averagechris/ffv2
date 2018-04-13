@@ -11,13 +11,17 @@ const JIRA = {
     project: { SUP: { name: "Support Triage", pid: 10011 } }
   }
 };
-
 const findLoggedInJiraUser = () =>
   [...document.querySelectorAll("meta")]
     .filter(node => node.name === "ajs-remote-user")
     .map(node => node.content)
     .pop();
-
+const defaultJiraFormValues = {
+  assignee: -1, // -1 appears to be "Automatic"
+  reporter: findLoggedInJiraUser(),
+  pid: JIRA.fields.project.SUP.pid,
+  issuetype: JIRA.fields.issueType.bug
+};
 const jiraPost = ({ body, headers, endpoint }) => {
   let url = `${JIRA.host}${JIRA.endpoints[endpoint]}`;
   let init = {
@@ -33,57 +37,50 @@ const jiraPost = ({ body, headers, endpoint }) => {
   };
   return fetch(url, init);
 };
+export const createJiraIssueSUP = (
+  { components, description, labels, priority, summary, ...rest },
+  beginCallback,
+  endCallback
+) => {
+  // call the beginCallback function, useful for setting a loading state
+  // which can be unset once the endCallback is called
+  beginCallback();
 
-export const createJiraIssueSUP = ({
-  assignee,
-  components,
-  description,
-  environment,
-  labels,
-  priority,
-  reporter,
-  summary
-}) => {
   // GET atl_token and formToken, then send the POST with the new ticket data
-  jiraPost({ endpoint: "formTokens" }).then(response => {
-    response.text().then(body => {
-      let { atl_token, formToken } = JSON.parse(body);
-      console.log(atl_token, formToken);
+  return jiraPost({ endpoint: "formTokens" }).then(response => {
+    response.text().then(resBody => {
+      let { atl_token, formToken } = JSON.parse(resBody);
+
+      // this is the data that will be encoded and submitted to Jira
+      let normalizedFormData = {
+        ...defaultJiraFormValues,
+        ...rest,
+        summary,
+        description,
+        priority: JIRA.fields.priority[priority],
+        components: components ? components.join(",") : undefined,
+        labels: labels ? labels.join(",") : undefined,
+        atl_token,
+        formToken
+      };
+      // form encode items that have values defined
+      let body = Object.keys(normalizedFormData)
+        .filter(param => normalizedFormData[param] !== undefined)
+        .map(param => `${param}=${normalizedFormData[param]}`)
+        .join("&");
+
+      // the call back receives a Promise from fetch
+      endCallback(
+        jiraPost({
+          body: encodeURIComponent(body),
+          endpoint: "createIssue",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+          }
+        })
+      );
     });
   });
-
-  let normalizedFormData = {
-    summary,
-    description,
-    assignee: assignee ? assignee : -1, // -1 appears to be "Automatic"
-    reporter: reporter ? reporter : findLoggedInJiraUser(),
-    pid: JIRA.fields.project.SUP.pid,
-    issuetype: JIRA.fields.issueType.bug,
-    priority: JIRA.fields.priority[priority],
-    components: components ? components.join(",") : undefined,
-    labels: labels ? labels.join(",") : undefined,
-
-    // environment
-    customfield_11140:
-      JIRA.fields.environment[environment] ||
-      JIRA.fields.environment.production,
-
-    // required tokens
-    atl_token: "",
-    formToken: ""
-  };
-  let body = Object.keys(normalizedFormData)
-    .filter(param => normalizedFormData[param] !== undefined)
-    .map(param => `${param}=${normalizedFormData[param]}`)
-    .join("&");
-
-  // return jiraPost({
-  //   body: encodeURIComponent(body),
-  //   endpoint: "createIssue",
-  //   headers: {
-  //     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-  //   }
-  // });
 };
 
 // EXAMPLE REQUEST HEADERS AND BODY

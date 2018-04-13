@@ -54,16 +54,20 @@ class JiraForm extends Component {
       this._formatReferencesToMarkupString(references)
     );
     let data = {
-      summary: formData.summary,
       description,
+      summary: formData.summary,
       priority: category.value,
-      labels: [],
-      environment: "produciton",
-      assignee: undefined, // creatJiraIssueSUP handels finding reporter/assignee by logged in user
-      reporter: undefined,
-      components: undefined
+      labels: []
     };
-    createJiraIssueSUP(data);
+    createJiraIssueSUP(
+      data,
+      () => this.setState(s => ({ ...s, loading: true })),
+      prom => {
+        prom.then(response =>
+          response.text().then(t => console.log(JSON.parse(t)))
+        );
+      }
+    );
   }
   updateCategory(e) {
     this.setState(s => ({ ...s, category: e }));
