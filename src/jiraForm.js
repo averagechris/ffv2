@@ -64,7 +64,7 @@ class JiraForm extends Component {
       () => this.setState(s => ({ ...s, loading: true })),
       prom => {
         prom.then(response =>
-          response.text().then(t => console.log(JSON.parse(t)))
+          response.text().then(t => console.log(t, JSON.parse(t)))
         );
       }
     );
