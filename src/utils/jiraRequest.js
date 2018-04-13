@@ -59,20 +59,21 @@ export const createJiraIssueSUP = (
         description,
         priority: JIRA.fields.priority[priority],
         components: components ? components.join(",") : undefined,
-        labels: labels ? labels.join(",") : undefined,
-        atl_token,
-        formToken
+        labels: labels ? labels.join(",") : undefined
       };
       // form encode items that have values defined
       let body = Object.keys(normalizedFormData)
         .filter(param => normalizedFormData[param] !== undefined)
-        .map(param => `${param}=${normalizedFormData[param]}`)
-        .join("&");
+        .map(
+          param => `${param}=${encodeURIComponent(normalizedFormData[param])}`
+        )
+        .join("&")
+        .concat(`&atl_token=${atl_token}&formToken=${formToken}`);
 
       // the call back receives a Promise from fetch
       endCallback(
         jiraPost({
-          body: encodeURIComponent(body),
+          body,
           endpoint: "createIssue",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
