@@ -44,12 +44,14 @@ export const createJiraIssueSUP = ({
   reporter,
   summary
 }) => {
-  let tokens;
+  // GET atl_token and formToken, then send the POST with the new ticket data
   jiraPost({ endpoint: "formTokens" }).then(response => {
     response.text().then(body => {
-      console.log(body, JSON.parse(body));
+      let { atl_token, formToken } = JSON.parse(body);
+      console.log(atl_token, formToken);
     });
   });
+
   let normalizedFormData = {
     summary,
     description,
