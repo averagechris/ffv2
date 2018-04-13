@@ -18,11 +18,10 @@ const findLoggedInJiraUser = () =>
     .map(node => node.content)
     .pop();
 
-const getJiraFormTokens = callback => {
-  jiraPost({ endpoint: "formTokens" }).then(r =>
+const getJiraFormTokens = () => {
+  return jiraPost({ endpoint: "formTokens" }).then(r =>
     r.text().then(body => {
-      let { atl_token, formToken } = JSON.parse(body);
-      callback({ atl_token, formToken });
+      return ({ atl_token, formToken } = JSON.parse(body));
     })
   );
 };
@@ -54,8 +53,7 @@ export const createJiraIssueSUP = ({
   summary
 }) => {
   let tokens;
-  getJiraFormTokens(r => (tokens = r));
-  console.log(tokens);
+  getJiraFormTokens(r => (tokens = r)).then(t => console.log(t));
   console.log("did it work");
   return;
   let normalizedFormData = {
