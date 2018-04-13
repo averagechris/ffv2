@@ -9,12 +9,20 @@ class JiraForm extends Component {
   constructor() {
     super();
     this.state = {
-      category: "",
+      // gets value from CategorySelect dropdown
+      category: { error: false, value: "" },
+      // gets values from pasting in emails, event ids, order ids into the references field
       references: {
+        error: false,
         emails: new Set(),
         eventIds: new Set(),
         orderIds: new Set()
-      }
+      },
+      // gets set to true when there's async network requests going on
+      loading: false,
+
+      // value gets set to {issueKey: "SUP-WHATEVER", summary: "whatever"}
+      createdJiraTicket: { error: false, value: false }
     };
     [
       "handleSubmit",
@@ -23,7 +31,8 @@ class JiraForm extends Component {
       "transformationsOnChange",
       "updateCategory",
       "_formatReferencesToMarkupString",
-      "_formatDescription"
+      "_formatDescription",
+      "onCreateIssuePost"
     ].forEach(f => (this[f] = this[f].bind(this)));
   }
   _formatReferencesToMarkupString({ emails, eventIds, orderIds }) {
@@ -59,18 +68,46 @@ class JiraForm extends Component {
       priority: category.value,
       labels: []
     };
+
     createJiraIssueSUP(
       data,
       () => this.setState(s => ({ ...s, loading: true })),
-      prom => {
-        prom.then(response =>
-          response.text().then(t => console.log(t, JSON.parse(t)))
-        );
-      }
+      this.onCreateIssuePost
     );
   }
+  onCreateIssuePost(promise) {
+    promise
+      .then(response => {
+        response
+          .text()
+          .then(t => {
+            let {
+              issueKey,
+              createIssueDetails: { fields: { summary } }
+            } = JSON.parse(t);
+            this.setState(s => ({
+              ...s,
+              createdJiraTicket: { error: false, value: { issueKey, summary } }
+            }));
+          })
+          // reading of the response body failed -- the ticket _may_ have been created
+          .catch(e =>
+            this.setState(s => ({
+              ...s,
+              createdJiraTicket: { error: true, value: e }
+            }))
+          );
+      })
+      // the request failed -- the ticket probably wasn't created
+      .catch(e =>
+        this.setState(s => ({
+          ...s,
+          createdJiraTicket: { error: true, value: e }
+        }))
+      );
+  }
   updateCategory(e) {
-    this.setState(s => ({ ...s, category: e }));
+    this.setState(s => ({ ...s, category: e.value }));
   }
   addReferenceItems(value) {
     let newEmails =

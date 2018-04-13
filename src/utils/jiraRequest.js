@@ -71,6 +71,8 @@ export const createJiraIssueSUP = (
         .concat(`&atl_token=${atl_token}&formToken=${formToken}`);
 
       // the call back receives a Promise from fetch
+      // on resolve it receives a Response object which can be extracted to text
+      // response.text().then(t => JSON.parse(t))
       endCallback(
         jiraPost({
           body,
