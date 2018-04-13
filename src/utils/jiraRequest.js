@@ -53,9 +53,11 @@ export const createJiraIssueSUP = ({
   summary
 }) => {
   let tokens;
-  getJiraFormTokens(r => (tokens = r)).then(t => console.log(t));
-  console.log("did it work");
-  return;
+  jiraPost({ endpoint: "formTokens" }).then(response => {
+    response.text().then(({ atl_token, formToken }) => {
+      console.log(atl_token, formToken);
+    });
+  });
   let normalizedFormData = {
     summary,
     description,
@@ -80,13 +82,14 @@ export const createJiraIssueSUP = ({
     .filter(param => normalizedFormData[param] !== undefined)
     .map(param => `${param}=${normalizedFormData[param]}`)
     .join("&");
-  return jiraPost({
-    body: encodeURIComponent(body),
-    endpoint: "createIssue",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-    }
-  });
+
+  // return jiraPost({
+  //   body: encodeURIComponent(body),
+  //   endpoint: "createIssue",
+  //   headers: {
+  //     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+  //   }
+  // });
 };
 
 // EXAMPLE REQUEST HEADERS AND BODY
