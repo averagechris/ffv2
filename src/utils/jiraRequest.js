@@ -55,6 +55,7 @@ export const createJiraIssueSUP = ({
   let tokens;
   jiraPost({ endpoint: "formTokens" }).then(response => {
     response.text().then(body => {
+      console.log(body, JSON.parse(body));
       let { atl_token, formToken } = JSON.parse(body);
       console.log(atl_token, formToken);
     });
