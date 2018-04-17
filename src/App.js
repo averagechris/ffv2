@@ -31,21 +31,16 @@ class App extends Component {
 
   render() {
     let { modalHidden } = this.state;
-
     return (
       <div className="">
-        {modalHidden ? (
-          this.renderToolbar()
-        ) : (
-          <Modal
-            handleClose={this.toggleModalHide}
-            containerClasses={["tc center"]}
-          >
-            <h1 className="tracked b ttu f2 lh-title tc">Fast File</h1>
-            <hr />
-            <JiraForm />
+        {!modalHidden && (
+          <Modal handleClose={this.toggleModalHide}>
+                <h1 className="tracked b ttu f2 lh-title tc">Fast File</h1>
+                <hr />
+                <JiraForm />
           </Modal>
         )}
+        {this.renderToolbar()}
       </div>
     );
   }
