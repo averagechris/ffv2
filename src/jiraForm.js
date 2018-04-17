@@ -1,5 +1,10 @@
 import React, { Component } from "react";
-import { Button, Form, FormInput } from "basic-react-component-library";
+import {
+  Button,
+  Form,
+  FormInput,
+  Spinner
+} from "basic-react-component-library";
 
 import { createJiraIssueSUP } from "./utils/jiraRequest.js";
 import CategorySelect from "./CategorySelect.js";
@@ -148,8 +153,11 @@ class JiraForm extends Component {
     return transformationFunctions;
   }
   render() {
-    let { category, references } = this.state;
-    return (
+    let { category, loading, references } = this.state;
+
+    return loading ? (
+      <Spinner size={5} />
+    ) : (
       <Form
         onSubmit={this.handleSubmit}
         applyToChanges={this.transformationsOnChange()}
